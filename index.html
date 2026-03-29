@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Buscador Bíblico RVR1960</title>
+  <style>
+    :root {
+      --bg: #f7f2e8;
+      --card: #ffffff;
+      --text: #2f2a24;
+      --muted: #6f675d;
+      --accent: #7a5c2e;
+      --accent-soft: #efe3cf;
+      --border: #dcccb1;
+      --highlight: #fff4bf;
+      --highlight-border: #ead27a;
+      --font-size-base: 24px;
+      --shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, #f8f4ec 0%, #efe5d7 100%);
+      color: var(--text);
+      padding: 14px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      text-align: center;
+      color: var(--accent);
+      font-size: 2rem;
+    }
+
+    .sub {
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 18px;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    .help {
+      background: var(--accent-soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin-bottom: 18px;
+      color: #4f4538;
+      line-height: 1.5;
+      font-size: 0.98rem;
+    }
+
+    .search-wrap {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .search-input {
+      width: 100%;
+      min-height: 58px;
+      border-radius: 18px;
+      border: 2px solid var(--border);
+      padding: 14px 18px;
+      font-size: 1.2rem;
+      outline: none;
+      color: var(--text);
+      background: #fff;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(122, 92, 46, 0.12);
+    }
+
+    .btn {
+      border: none;
+      border-radius: 18px;
+      padding: 0 20px;
+      min-height: 58px;
+      background: var(--accent);
+      color: white;
+      font-size: 1.05rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      filter: brightness(1.05);
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .tool-btn {
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--accent);
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: bold;
+      min-width: 58px;
+    }
+
+    .tool-btn:hover {
+      background: #faf6ef;
+    }
+
+    .status {
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 16px;
+      font-size: 1rem;
+      min-height: 24px;
+    }
+
+    .chapter-box {
+      background: #fffdf9;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .chapter-title {
+      text-align: center;
+      color: var(--accent);
+      font-size: 1.6rem;
+      margin-bottom: 16px;
+      font-weight: bold;
+    }
+
+    .verse {
+      font-size: var(--font-size-base);
+      line-height: 1.85;
+      margin-bottom: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      transition: background 0.2s ease;
+    }
+
+    .verse-number {
+      color: var(--accent);
+      font-weight: bold;
+      margin-right: 8px;
+    }
+
+    .highlight {
+      background: var(--highlight);
+      border: 1px solid var(--highlight-border);
+    }
+
+    .empty {
+      text-align: center;
+      padding: 28px 12px;
+      color: var(--muted);
+      font-size: 1.1rem;
+    }
+
+    .examples {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .example-chip {
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--accent);
+      padding: 8px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .example-chip:hover {
+      background: #faf6ef;
+    }
+
+    @media (max-width: 700px) {
+      h1 {
+        font-size: 1.6rem;
+      }
+
+      .search-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      :root {
+        --font-size-base: 22px;
+      }
+
+      .chapter-title {
+        font-size: 1.35rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+
+      .card {
+        padding: 14px;
+        border-radius: 18px;
+      }
+
+      :root {
+        --font-size-base: 20px;
+      }
+
+      .search-input {
+        font-size: 1.05rem;
+        min-height: 54px;
+      }
+
+      .btn {
+        min-height: 54px;
+      }
+
+      .verse {
+        line-height: 1.75;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>Buscador Bíblico RVR1960</h1>
+
+      <div class="sub">
+        Escribí una referencia como <strong>juan 1 12</strong> o <strong>salmos 23 1</strong>
+      </div>
+
+      <div class="help">
+        El buscador encuentra el <strong>libro, capítulo y versículo</strong>, pero muestra el
+        <strong>capítulo completo</strong> para que el lector vea el contexto. El versículo buscado queda resaltado.
+      </div>
+
+      <div class="search-wrap">
+        <input
+          id="searchInput"
+          class="search-input"
+          type="text"
+          placeholder="Ejemplo: juan 1 12"
+          autocomplete="off"
+        />
+        <button class="btn" onclick="buscarReferencia()">Buscar</button>
+      </div>
+
+      <div class="examples">
+        <button class="example-chip" onclick="ponerEjemplo('juan 1 12')">juan 1 12</button>
+        <button class="example-chip" onclick="ponerEjemplo('salmos 23 1')">salmos 23 1</button>
+        <button class="example-chip" onclick="ponerEjemplo('mateo 11 28')">mateo 11 28</button>
+      </div>
+
+      <div class="toolbar">
+        <button class="tool-btn" onclick="cambiarTamano(2)">A+</button>
+        <button class="tool-btn" onclick="cambiarTamano(-2)">A-</button>
+      </div>
+
+      <div class="status" id="status">Cargando Biblia...</div>
+      <div id="resultado"></div>
+    </div>
+  </div>
+
+  <script>
+    let biblia = {};
+    let fontSize = 24;
+
+    const aliasLibros = {
+      "genesis": "genesis",
+      "éxodo": "exodo",
+      "exodo": "exodo",
+      "levitico": "levitico",
+      "levítico": "levitico",
+      "numeros": "numeros",
+      "números": "numeros",
+      "deuteronomio": "deuteronomio",
+      "josue": "josue",
+      "josué": "josue",
+      "jueces": "jueces",
+      "rut": "rut",
+      "1 samuel": "1_samuel",
+      "2 samuel": "2_samuel",
+      "1 reyes": "1_reyes",
+      "2 reyes": "2_reyes",
+      "1 cronicas": "1_cronicas",
+      "1 crónicas": "1_cronicas",
+      "2 cronicas": "2_cronicas",
+      "2 crónicas": "2_cronicas",
+      "esdras": "esdras",
+      "nehemias": "nehemias",
+      "ester": "ester",
+      "job": "job",
+      "salmo": "salmos",
+      "salmos": "salmos",
+      "proverbios": "proverbios",
+      "eclesiastes": "eclesiastes",
+      "eclesiastes": "eclesiastes",
+      "cantares": "cantares",
+      "isaias": "isaias",
+      "isaías": "isaias",
+      "jeremias": "jeremias",
+      "jeremías": "jeremias",
+      "lamentaciones": "lamentaciones",
+      "ezequiel": "ezequiel",
+      "daniel": "daniel",
+      "oseas": "oseas",
+      "joel": "joel",
+      "amos": "amos",
+      "amós": "amos",
+      "abdias": "abdias",
+      "abdías": "abdias",
+      "jonas": "jonas",
+      "jonás": "jonas",
+      "miqueas": "miqueas",
+      "nahum": "nahum",
+      "habacuc": "habacuc",
+      "sofonias": "sofonias",
+      "sofonías": "sofonias",
+      "hageo": "hageo",
+      "zacarias": "zacarias",
+      "zacarías": "zacarias",
+      "malaquias": "malaquias",
+      "mateo": "mateo",
+      "marcos": "marcos",
+      "lucas": "lucas",
+      "juan": "juan",
+      "san juan": "juan",
+      "hechos": "hechos",
+      "romanos": "romanos",
+      "1 corintios": "1_corintios",
+      "2 corintios": "2_corintios",
+      "galatas": "galatas",
+      "gálatas": "galatas",
+      "efesios": "efesios",
+      "filipenses": "filipenses",
+      "colosenses": "colosenses",
+      "1 tesalonicenses": "1_tesalonicenses",
+      "2 tesalonicenses": "2_tesalonicenses",
+      "1 timoteo": "1_timoteo",
+      "2 timoteo": "2_timoteo",
+      "tito": "tito",
+      "filemon": "filemon",
+      "hebreos": "hebreos",
+      "santiago": "santiago",
+      "1 pedro": "1_pedro",
+      "2 pedro": "2_pedro",
+      "1 juan": "1_juan",
+      "2 juan": "2_juan",
+      "3 juan": "3_juan",
+      "judas": "judas",
+      "apocalipsis": "apocalipsis"
+    };
+
+    const nombresMostrar = {
+      "genesis": "Génesis",
+      "exodo": "Éxodo",
+      "levitico": "Levítico",
+      "numeros": "Números",
+      "deuteronomio": "Deuteronomio",
+      "josue": "Josué",
+      "jueces": "Jueces",
+      "rut": "Rut",
+      "1_samuel": "1 Samuel",
+      "2_samuel": "2 Samuel",
+      "1_reyes": "1 Reyes",
+      "2_reyes": "2 Reyes",
+      "1_cronicas": "1 Crónicas",
+      "2_cronicas": "2 Crónicas",
+      "esdras": "Esdras",
+      "nehemias": "Nehemías",
+      "ester": "Ester",
+      "job": "Job",
+      "salmos": "Salmos",
+      "proverbios": "Proverbios",
+      "eclesiastes": "Eclesiastés",
+      "cantares": "Cantares",
+      "isaias": "Isaías",
+      "jeremias": "Jeremías",
+      "lamentaciones": "Lamentaciones",
+      "ezequiel": "Ezequiel",
+      "daniel": "Daniel",
+      "oseas": "Oseas",
+      "joel": "Joel",
+      "amos": "Amós",
+      "abdias": "Abdías",
+      "jonas": "Jonás",
+      "miqueas": "Miqueas",
+      "nahum": "Nahúm",
+      "habacuc": "Habacuc",
+      "sofonias": "Sofonías",
+      "hageo": "Hageo",
+      "zacarias": "Zacarías",
+      "malaquias": "Malaquías",
+      "mateo": "Mateo",
+      "marcos": "Marcos",
+      "lucas": "Lucas",
+      "juan": "Juan",
+      "hechos": "Hechos",
+      "romanos": "Romanos",
+      "1_corintios": "1 Corintios",
+      "2_corintios": "2 Corintios",
+      "galatas": "Gálatas",
+      "efesios": "Efesios",
+      "filipenses": "Filipenses",
+      "colosenses": "Colosenses",
+      "1_tesalonicenses": "1 Tesalonicenses",
+      "2_tesalonicenses": "2 Tesalonicenses",
+      "1_timoteo": "1 Timoteo",
+      "2_timoteo": "2 Timoteo",
+      "tito": "Tito",
+      "filemon": "Filemón",
+      "hebreos": "Hebreos",
+      "santiago": "Santiago",
+      "1_pedro": "1 Pedro",
+      "2_pedro": "2 Pedro",
+      "1_juan": "1 Juan",
+      "2_juan": "2 Juan",
+      "3_juan": "3 Juan",
+      "judas": "Judas",
+      "apocalipsis": "Apocalipsis"
+    };
+
+    function normalizarTexto(texto) {
+      return texto
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    async function cargarBiblia() {
+      try {
+        const resp = await fetch("biblia.json");
+        if (!resp.ok) {
+          throw new Error("No se pudo cargar biblia.json");
+        }
+
+        biblia = await resp.json();
+        document.getElementById("status").textContent = "Biblia cargada correctamente.";
+      } catch (error) {
+        document.getElementById("status").textContent = "Error al cargar biblia.json";
+        console.error(error);
+      }
+    }
+
+    function parsearBusqueda(texto) {
+      const limpio = normalizarTexto(texto);
+
+      // Acepta: juan 1 12
+      const match = limpio.match(/^(.*?)\s+(\d+)\s+(\d+)$/);
+      if (!match) return null;
+
+      const libroIngresado = match[1].trim();
+      const capitulo = parseInt(match[2], 10);
+      const versiculo = parseInt(match[3], 10);
+
+      if (!libroIngresado || isNaN(capitulo) || isNaN(versiculo)) {
+        return null;
+      }
+
+      let libroKey = aliasLibros[libroIngresado];
+
+      if (!libroKey) {
+        libroKey = libroIngresado.replace(/\s+/g, "_");
+      }
+
+      return {
+        libroIngresado,
+        libroKey,
+        capitulo,
+        versiculo
+      };
+    }
+
+    function mostrarCapitulo(libroKey, capitulo, versiculoResaltado) {
+      const resultado = document.getElementById("resultado");
+      resultado.innerHTML = "";
+
+      if (!biblia[libroKey]) {
+        document.getElementById("status").textContent = "No encontré ese libro.";
+        resultado.innerHTML = `<div class="empty">Libro no encontrado.</div>`;
+        return;
+      }
+
+      const capitulos = biblia[libroKey];
+      const capIndex = capitulo - 1;
+
+      if (!capitulos[capIndex]) {
+        document.getElementById("status").textContent = "No encontré ese capítulo.";
+        resultado.innerHTML = `<div class="empty">Capítulo no encontrado.</div>`;
+        return;
+      }
+
+      const versos = capitulos[capIndex];
+      const versoIndex = versiculoResaltado - 1;
+
+      if (!versos[versoIndex]) {
+        document.getElementById("status").textContent = "No encontré ese versículo.";
+        resultado.innerHTML = `<div class="empty">Versículo no encontrado.</div>`;
+        return;
+      }
+
+      const nombreLibro = nombresMostrar[libroKey] || libroKey;
+
+      document.getElementById("status").textContent =
+        `Mostrando ${nombreLibro} ${capitulo}, resaltando el versículo ${versiculoResaltado}.`;
+
+      const box = document.createElement("div");
+      box.className = "chapter-box";
+
+      const titulo = document.createElement("div");
+      titulo.className = "chapter-title";
+      titulo.textContent = `${nombreLibro} ${capitulo}`;
+      box.appendChild(titulo);
+
+      versos.forEach((texto, i) => {
+        const div = document.createElement("div");
+        div.className = "verse";
+        if (i === versoIndex) {
+          div.classList.add("highlight");
+          div.id = "versiculo-destacado";
+        }
+
+        div.innerHTML = `<span class="verse-number">${i + 1}</span>${texto}`;
+        box.appendChild(div);
+      });
+
+      resultado.appendChild(box);
+
+      setTimeout(() => {
+        const destacado = document.getElementById("versiculo-destacado");
+        if (destacado) {
+          destacado.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+          });
+        }
+      }, 120);
+    }
+
+    function buscarReferencia() {
+      const valor = document.getElementById("searchInput").value.trim();
+
+      if (!valor) {
+        document.getElementById("status").textContent = "Escribí algo como: juan 1 12";
+        document.getElementById("resultado").innerHTML =
+          `<div class="empty">Ingresá libro, capítulo y versículo.</div>`;
+        return;
+      }
+
+      const ref = parsearBusqueda(valor);
+
+      if (!ref) {
+        document.getElementById("status").textContent =
+          "Formato inválido. Usá por ejemplo: juan 1 12";
+        document.getElementById("resultado").innerHTML =
+          `<div class="empty">Formato esperado: libro capítulo versículo</div>`;
+        return;
+      }
+
+      mostrarCapitulo(ref.libroKey, ref.capitulo, ref.versiculo);
+    }
+
+    function cambiarTamano(delta) {
+      fontSize += delta;
+
+      if (fontSize < 16) fontSize = 16;
+      if (fontSize > 46) fontSize = 46;
+
+      document.documentElement.style.setProperty("--font-size-base", fontSize + "px");
+    }
+
+    function ponerEjemplo(texto) {
+      document.getElementById("searchInput").value = texto;
+      buscarReferencia();
+    }
+
+    document.getElementById("searchInput").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        buscarReferencia();
+      }
+    });
+
+    cargarBiblia();
+  </script>
+</body>
+</html>
