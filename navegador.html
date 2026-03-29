@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Navegador Bíblico RVR1960</title>
+  <style>
+    :root {
+      --dark-bg: #000000;
+      --dark-panel: #0c0c0c;
+      --dark-tile: #3a3a3d;
+      --dark-tile-border: #1f1f1f;
+      --dark-text: #f2f2f2;
+      --dark-muted: #bfbfbf;
+      --dark-selected: #f0f0f0;
+      --dark-selected-text: #111111;
+
+      --light-bg: #f7f2e8;
+      --light-card: #ffffff;
+      --light-text: #2f2a24;
+      --light-muted: #6f675d;
+      --light-accent: #7a5c2e;
+      --light-accent-soft: #efe3cf;
+      --light-border: #dcccb1;
+      --light-highlight: #fff4bf;
+      --light-highlight-border: #ead27a;
+      --shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+
+      --reading-font-size: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--dark-bg);
+      color: var(--dark-text);
+    }
+
+    .top-shell {
+      max-width: 900px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: var(--dark-bg);
+    }
+
+    .header-spacer {
+      height: 16px;
+      background: var(--dark-bg);
+    }
+
+    .top-pill {
+      margin: 0 14px 12px;
+      height: 22px;
+      border-radius: 999px;
+      background: #111318;
+    }
+
+    .nav-bar {
+      display: grid;
+      grid-template-columns: 64px 1fr 64px;
+      align-items: center;
+      background: var(--dark-panel);
+      min-height: 72px;
+      border-bottom: 1px solid #1a1a1a;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .nav-btn {
+      appearance: none;
+      border: none;
+      background: transparent;
+      color: #ffffff;
+      font-size: 2rem;
+      cursor: pointer;
+      height: 100%;
+    }
+
+    .nav-btn.small {
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    .nav-center {
+      text-align: center;
+      padding: 8px 6px;
+    }
+
+    .nav-title {
+      font-size: 1.2rem;
+      color: #fff;
+      font-weight: bold;
+      line-height: 1.2;
+    }
+
+    .nav-subtitle {
+      font-size: 0.95rem;
+      color: var(--dark-muted);
+      margin-top: 4px;
+      min-height: 20px;
+    }
+
+    .dots {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      background: #7b7b7b;
+      opacity: 0.85;
+    }
+
+    .dot.active {
+      background: #f0f0f0;
+    }
+
+    .screen {
+      display: none;
+      padding-bottom: 26px;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 1px;
+      background: #111;
+    }
+
+    .tile {
+      border: none;
+      background: var(--dark-tile);
+      color: var(--dark-text);
+      min-height: 110px;
+      font-size: 1.25rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      text-align: center;
+      border-radius: 0;
+    }
+
+    .tile:hover {
+      filter: brightness(1.06);
+    }
+
+    .tile.selected {
+      background: var(--dark-selected);
+      color: var(--dark-selected-text);
+    }
+
+    .tile.book {
+      font-size: 1.05rem;
+      font-weight: 500;
+    }
+
+    .controls-dark {
+      padding: 14px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      background: var(--dark-bg);
+    }
+
+    .pill-btn-dark {
+      border: 1px solid #4c4c4c;
+      background: #141414;
+      color: #fff;
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+
+    .pill-btn-dark:hover {
+      background: #1d1d1d;
+    }
+
+    .reading-area {
+      display: none;
+      background: linear-gradient(180deg, #f8f4ec 0%, #efe5d7 100%);
+      color: var(--light-text);
+      min-height: 100vh;
+      padding: 14px;
+    }
+
+    .reading-area.active {
+      display: block;
+    }
+
+    .reading-container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .reading-card {
+      background: var(--light-card);
+      border: 1px solid var(--light-border);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .reading-title {
+      margin: 0 0 8px;
+      text-align: center;
+      color: var(--light-accent);
+      font-size: 2rem;
+    }
+
+    .reading-sub {
+      text-align: center;
+      color: var(--light-muted);
+      margin-bottom: 14px;
+      font-size: 1rem;
+    }
+
+    .reading-help {
+      background: var(--light-accent-soft);
+      border: 1px solid var(--light-border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      color: #4f4538;
+      line-height: 1.5;
+      font-size: 0.98rem;
+    }
+
+    .reading-toolbar {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .tool-btn {
+      border: 1px solid var(--light-border);
+      background: white;
+      color: var(--light-accent);
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .tool-btn.primary {
+      background: var(--light-accent);
+      color: white;
+      border-color: var(--light-accent);
+    }
+
+    .tool-btn:hover {
+      filter: brightness(1.03);
+    }
+
+    .reading-status {
+      text-align: center;
+      color: var(--light-muted);
+      margin-bottom: 16px;
+      font-size: 1rem;
+      min-height: 24px;
+    }
+
+    .chapter-box {
+      background: #fffdf9;
+      border: 1px solid var(--light-border);
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .chapter-title {
+      text-align: center;
+      color: var(--light-accent);
+      font-size: 1.6rem;
+      margin-bottom: 16px;
+      font-weight: bold;
+    }
+
+    .verse {
+      font-size: var(--reading-font-size);
+      line-height: 1.85;
+      margin-bottom: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+    }
+
+    .verse-number {
+      color: var(--light-accent);
+      font-weight: bold;
+      margin-right: 8px;
+    }
+
+    .highlight {
+      background: var(--light-highlight);
+      border: 1px solid var(--light-highlight-border);
+    }
+
+    .chapter-nav {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .empty-msg {
+      text-align: center;
+      color: #bdbdbd;
+      padding: 24px 12px;
+      font-size: 1rem;
+    }
+
+    @media (max-width: 820px) {
+      .grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .tile {
+        min-height: 96px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .tile {
+        min-height: 88px;
+        font-size: 1rem;
+      }
+
+      .tile.book {
+        font-size: 0.95rem;
+      }
+
+      .nav-bar {
+        grid-template-columns: 56px 1fr 56px;
+        min-height: 68px;
+      }
+
+      .nav-btn {
+        font-size: 1.8rem;
+      }
+
+      .nav-btn.small {
+        font-size: 1rem;
+      }
+
+      .reading-title {
+        font-size: 1.7rem;
+      }
+
+      .chapter-title {
+        font-size: 1.35rem;
+      }
+
+      :root {
+        --reading-font-size: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="darkApp" class="top-shell">
+    <div class="header-spacer"></div>
+    <div class="top-pill"></div>
+
+    <div class="nav-bar">
+      <button class="nav-btn" id="backBtn" onclick="volverAtras()">‹</button>
+
+      <div class="nav-center">
+        <div class="nav-title" id="navTitle">Biblia</div>
+        <div class="nav-subtitle" id="navSubtitle">Seleccioná un libro</div>
+        <div class="dots">
+          <div class="dot active" id="dot1"></div>
+          <div class="dot" id="dot2"></div>
+          <div class="dot" id="dot3"></div>
+        </div>
+      </div>
+
+      <button class="nav-btn small" onclick="irAInicio()">Inicio</button>
+    </div>
+
+    <div class="controls-dark">
+      <button class="pill-btn-dark" onclick="irABuscador()">Ir al buscador</button>
+    </div>
+
+    <div class="screen active" id="screenBooks">
+      <div class="grid" id="booksGrid"></div>
+    </div>
+
+    <div class="screen" id="screenChapters">
+      <div class="grid" id="chaptersGrid"></div>
+    </div>
+
+    <div class="screen" id="screenVerses">
+      <div class="grid" id="versesGrid"></div>
+    </div>
+  </div>
+
+  <div id="readingArea" class="reading-area">
+    <div class="reading-container">
+      <div class="reading-card">
+        <h1 class="reading-title">Buscador Bíblico RVR1960</h1>
+        <div class="reading-sub" id="readingSub">Lectura del capítulo</div>
+
+        <div class="reading-help">
+          Estás viendo el <strong>capítulo completo</strong> con el versículo elegido resaltado.
+          Podés volver al inicio, ir al buscador principal o moverte al capítulo anterior o siguiente.
+        </div>
+
+        <div class="reading-toolbar">
+          <button class="tool-btn primary" onclick="irAInicio()">Inicio</button>
+          <button class="tool-btn" onclick="irABuscador()">Buscar</button>
+          <button class="tool-btn" onclick="cambiarTamano(2)">A+</button>
+          <button class="tool-btn" onclick="cambiarTamano(-2)">A-</button>
+        </div>
+
+        <div class="reading-status" id="readingStatus"></div>
+
+        <div id="readingResult"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let biblia = {};
+    let fontSize = 24;
+
+    let currentBook = null;
+    let currentChapter = null;
+    let currentVerse = null;
+    let currentStage = 1;
+
+    const books = [
+      { key: "genesis", short: "Gn", name: "Génesis" },
+      { key: "exodo", short: "Ex", name: "Éxodo" },
+      { key: "levitico", short: "Lv", name: "Levítico" },
+      { key: "numeros", short: "Nm", name: "Números" },
+      { key: "deuteronomio", short: "Dt", name: "Deuteronomio" },
+      { key: "josue", short: "Jos", name: "Josué" },
+      { key: "jueces", short: "Jue", name: "Jueces" },
+      { key: "rut", short: "Rt", name: "Rut" },
+      { key: "1_samuel", short: "1S", name: "1 Samuel" },
+      { key: "2_samuel", short: "2S", name: "2 Samuel" },
+      { key: "1_reyes", short: "1R", name: "1 Reyes" },
+      { key: "2_reyes", short: "2R", name: "2 Reyes" },
+      { key: "1_cronicas", short: "1Cr", name: "1 Crónicas" },
+      { key: "2_cronicas", short: "2Cr", name: "2 Crónicas" },
+      { key: "esdras", short: "Esd", name: "Esdras" },
+      { key: "nehemias", short: "Neh", name: "Nehemías" },
+      { key: "ester", short: "Est", name: "Ester" },
+      { key: "job", short: "Job", name: "Job" },
+      { key: "salmos", short: "Sal", name: "Salmos" },
+      { key: "proverbios", short: "Pr", name: "Proverbios" },
+      { key: "eclesiastes", short: "Ec", name: "Eclesiastés" },
+      { key: "cantares", short: "Cnt", name: "Cantares" },
+      { key: "isaias", short: "Is", name: "Isaías" },
+      { key: "jeremias", short: "Jer", name: "Jeremías" },
+      { key: "lamentaciones", short: "Lm", name: "Lamentaciones" },
+      { key: "ezequiel", short: "Ez", name: "Ezequiel" },
+      { key: "daniel", short: "Dn", name: "Daniel" },
+      { key: "oseas", short: "Os", name: "Oseas" },
+      { key: "joel", short: "Jl", name: "Joel" },
+      { key: "amos", short: "Am", name: "Amós" },
+      { key: "abdias", short: "Abd", name: "Abdías" },
+      { key: "jonas", short: "Jon", name: "Jonás" },
+      { key: "miqueas", short: "Mi", name: "Miqueas" },
+      { key: "nahum", short: "Nah", name: "Nahúm" },
+      { key: "habacuc", short: "Hab", name: "Habacuc" },
+      { key: "sofonias", short: "Sof", name: "Sofonías" },
+      { key: "hageo", short: "Hag", name: "Hageo" },
+      { key: "zacarias", short: "Zac", name: "Zacarías" },
+      { key: "malaquias", short: "Mal", name: "Malaquías" },
+      { key: "mateo", short: "Mt", name: "Mateo" },
+      { key: "marcos", short: "Mr", name: "Marcos" },
+      { key: "lucas", short: "Lc", name: "Lucas" },
+      { key: "juan", short: "Jn", name: "Juan" },
+      { key: "hechos", short: "Hch", name: "Hechos" },
+      { key: "romanos", short: "Ro", name: "Romanos" },
+      { key: "1_corintios", short: "1Co", name: "1 Corintios" },
+      { key: "2_corintios", short: "2Co", name: "2 Corintios" },
+      { key: "galatas", short: "Ga", name: "Gálatas" },
+      { key: "efesios", short: "Ef", name: "Efesios" },
+      { key: "filipenses", short: "Fil", name: "Filipenses" },
+      { key: "colosenses", short: "Col", name: "Colosenses" },
+      { key: "1_tesalonicenses", short: "1Ts", name: "1 Tesalonicenses" },
+      { key: "2_tesalonicenses", short: "2Ts", name: "2 Tesalonicenses" },
+      { key: "1_timoteo", short: "1Ti", name: "1 Timoteo" },
+      { key: "2_timoteo", short: "2Ti", name: "2 Timoteo" },
+      { key: "tito", short: "Tit", name: "Tito" },
+      { key: "filemon", short: "Flm", name: "Filemón" },
+      { key: "hebreos", short: "He", name: "Hebreos" },
+      { key: "santiago", short: "Stg", name: "Santiago" },
+      { key: "1_pedro", short: "1P", name: "1 Pedro" },
+      { key: "2_pedro", short: "2P", name: "2 Pedro" },
+      { key: "1_juan", short: "1Jn", name: "1 Juan" },
+      { key: "2_juan", short: "2Jn", name: "2 Juan" },
+      { key: "3_juan", short: "3Jn", name: "3 Juan" },
+      { key: "judas", short: "Jud", name: "Judas" },
+      { key: "apocalipsis", short: "Ap", name: "Apocalipsis" }
+    ];
+
+    const bookMap = Object.fromEntries(books.map(book => [book.key, book]));
+
+    async function cargarBiblia() {
+      try {
+        const resp = await fetch("biblia.json");
+        if (!resp.ok) {
+          throw new Error("No se pudo cargar biblia.json");
+        }
+        biblia = await resp.json();
+        renderBooks();
+        actualizarHeader();
+      } catch (error) {
+        document.getElementById("booksGrid").innerHTML =
+          `<div class="empty-msg">No se pudo cargar la Biblia.</div>`;
+        console.error(error);
+      }
+    }
+
+    function actualizarHeader() {
+      const navTitle = document.getElementById("navTitle");
+      const navSubtitle = document.getElementById("navSubtitle");
+
+      if (currentStage === 1) {
+        navTitle.textContent = "Biblia";
+        navSubtitle.textContent = "Seleccioná un libro";
+      } else if (currentStage === 2 && currentBook) {
+        navTitle.textContent = bookMap[currentBook].short;
+        navSubtitle.textContent = "Seleccioná un capítulo";
+      } else if (currentStage === 3 && currentBook && currentChapter) {
+        navTitle.textContent = `${bookMap[currentBook].short} ${currentChapter}`;
+        navSubtitle.textContent = "Seleccioná un versículo";
+      }
+
+      document.getElementById("dot1").classList.toggle("active", currentStage === 1);
+      document.getElementById("dot2").classList.toggle("active", currentStage === 2);
+      document.getElementById("dot3").classList.toggle("active", currentStage === 3);
+    }
+
+    function showScreen(screenId) {
+      document.querySelectorAll(".screen").forEach(el => el.classList.remove("active"));
+      document.getElementById(screenId).classList.add("active");
+      document.getElementById("darkApp").style.display = "block";
+      document.getElementById("readingArea").classList.remove("active");
+      actualizarHeader();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function renderBooks() {
+      const grid = document.getElementById("booksGrid");
+      grid.innerHTML = "";
+
+      books.forEach(book => {
+        const btn = document.createElement("button");
+        btn.className = "tile book";
+        btn.textContent = book.short;
+        btn.title = book.name;
+        btn.onclick = () => seleccionarLibro(book.key);
+        grid.appendChild(btn);
+      });
+    }
+
+    function seleccionarLibro(bookKey) {
+      currentBook = bookKey;
+      currentChapter = null;
+      currentVerse = null;
+      currentStage = 2;
+      renderChapters();
+      showScreen("screenChapters");
+    }
+
+    function renderChapters() {
+      const grid = document.getElementById("chaptersGrid");
+      grid.innerHTML = "";
+
+      const totalCapitulos = biblia[currentBook]?.length || 0;
+
+      for (let i = 1; i <= totalCapitulos; i++) {
+        const btn = document.createElement("button");
+        btn.className = "tile";
+        btn.textContent = i;
+        btn.onclick = () => seleccionarCapitulo(i);
+        grid.appendChild(btn);
+      }
+    }
+
+    function seleccionarCapitulo(chapterNumber) {
+      currentChapter = chapterNumber;
+      currentVerse = null;
+      currentStage = 3;
+      renderVerses();
+      showScreen("screenVerses");
+    }
+
+    function renderVerses() {
+      const grid = document.getElementById("versesGrid");
+      grid.innerHTML = "";
+
+      const verses = biblia[currentBook]?.[currentChapter - 1] || [];
+
+      for (let i = 1; i <= verses.length; i++) {
+        const btn = document.createElement("button");
+        btn.className = "tile";
+        btn.textContent = i;
+        btn.onclick = () => seleccionarVersiculo(i);
+        grid.appendChild(btn);
+      }
+    }
+
+    function seleccionarVersiculo(verseNumber) {
+      currentVerse = verseNumber;
+      mostrarLectura(currentBook, currentChapter, currentVerse);
+    }
+
+    function mostrarLectura(bookKey, chapterNumber, verseNumber) {
+      const verses = biblia[bookKey]?.[chapterNumber - 1];
+      if (!verses || !verses[verseNumber - 1]) return;
+
+      document.getElementById("darkApp").style.display = "none";
+      document.getElementById("readingArea").classList.add("active");
+
+      const bookName = bookMap[bookKey].name;
+      document.getElementById("readingSub").textContent =
+        `Mostrando ${bookName} ${chapterNumber}, resaltando el versículo ${verseNumber}.`;
+      document.getElementById("readingStatus").textContent =
+        `Estás en ${bookName} ${chapterNumber}:${verseNumber}`;
+
+      const result = document.getElementById("readingResult");
+      result.innerHTML = "";
+
+      const box = document.createElement("div");
+      box.className = "chapter-box";
+
+      const title = document.createElement("div");
+      title.className = "chapter-title";
+      title.textContent = `${bookName} ${chapterNumber}`;
+      box.appendChild(title);
+
+      verses.forEach((text, i) => {
+        const div = document.createElement("div");
+        div.className = "verse";
+        if (i === verseNumber - 1) {
+          div.classList.add("highlight");
+          div.id = "versiculo-destacado";
+        }
+        div.innerHTML = `<span class="verse-number">${i + 1}</span>${text}`;
+        box.appendChild(div);
+      });
+
+      const nav = document.createElement("div");
+      nav.className = "chapter-nav";
+
+      const btnPrev = document.createElement("button");
+      btnPrev.className = "tool-btn";
+      btnPrev.textContent = "Capítulo anterior";
+      btnPrev.disabled = chapterNumber <= 1;
+      btnPrev.style.opacity = chapterNumber <= 1 ? "0.5" : "1";
+      btnPrev.style.cursor = chapterNumber <= 1 ? "default" : "pointer";
+      if (chapterNumber > 1) {
+        btnPrev.onclick = () => {
+          currentChapter = chapterNumber - 1;
+          currentVerse = 1;
+          mostrarLectura(bookKey, currentChapter, currentVerse);
+        };
+      }
+
+      const btnNext = document.createElement("button");
+      btnNext.className = "tool-btn";
+      btnNext.textContent = "Capítulo siguiente";
+      const totalCapitulos = biblia[bookKey].length;
+      btnNext.disabled = chapterNumber >= totalCapitulos;
+      btnNext.style.opacity = chapterNumber >= totalCapitulos ? "0.5" : "1";
+      btnNext.style.cursor = chapterNumber >= totalCapitulos ? "default" : "pointer";
+      if (chapterNumber < totalCapitulos) {
+        btnNext.onclick = () => {
+          currentChapter = chapterNumber + 1;
+          currentVerse = 1;
+          mostrarLectura(bookKey, currentChapter, currentVerse);
+        };
+      }
+
+      nav.appendChild(btnPrev);
+      nav.appendChild(btnNext);
+      box.appendChild(nav);
+
+      result.appendChild(box);
+
+      setTimeout(() => {
+        const highlighted = document.getElementById("versiculo-destacado");
+        if (highlighted) {
+          highlighted.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 120);
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function volverAtras() {
+      if (document.getElementById("readingArea").classList.contains("active")) {
+        document.getElementById("readingArea").classList.remove("active");
+        document.getElementById("darkApp").style.display = "block";
+        currentStage = 3;
+        showScreen("screenVerses");
+        return;
+      }
+
+      if (currentStage === 3) {
+        currentStage = 2;
+        currentVerse = null;
+        showScreen("screenChapters");
+      } else if (currentStage === 2) {
+        currentStage = 1;
+        currentChapter = null;
+        showScreen("screenBooks");
+      } else {
+        irAInicio();
+      }
+    }
+
+    function irAInicio() {
+      currentBook = null;
+      currentChapter = null;
+      currentVerse = null;
+      currentStage = 1;
+      document.getElementById("readingArea").classList.remove("active");
+      document.getElementById("darkApp").style.display = "block";
+      showScreen("screenBooks");
+    }
+
+    function irABuscador() {
+      window.location.href = "index.html";
+    }
+
+    function cambiarTamano(delta) {
+      fontSize += delta;
+      if (fontSize < 16) fontSize = 16;
+      if (fontSize > 46) fontSize = 46;
+      document.documentElement.style.setProperty("--reading-font-size", fontSize + "px");
+    }
+
+    cargarBiblia();
+  </script>
+</body>
+</html>
