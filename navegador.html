@@ -26,7 +26,7 @@
       --light-highlight-border: #ead27a;
       --shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
 
-      --reading-font-size: 24px;
+      --reading-font-size: 40px;
     }
 
     * {
@@ -173,29 +173,6 @@
       font-weight: 500;
     }
 
-    .controls-dark {
-      padding: 14px;
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      background: var(--dark-bg);
-    }
-
-    .pill-btn-dark {
-      border: 1px solid #4c4c4c;
-      background: #141414;
-      color: #fff;
-      border-radius: 999px;
-      padding: 10px 16px;
-      font-size: 0.95rem;
-      cursor: pointer;
-    }
-
-    .pill-btn-dark:hover {
-      background: #1d1d1d;
-    }
-
     .reading-area {
       display: none;
       background: linear-gradient(180deg, #f8f4ec 0%, #efe5d7 100%);
@@ -219,6 +196,27 @@
       border-radius: 22px;
       box-shadow: var(--shadow);
       padding: 18px;
+      position: relative;
+    }
+
+    .floating-home {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      z-index: 999;
+      border: none;
+      background: #7a5c2e;
+      color: white;
+      padding: 12px 16px;
+      border-radius: 999px;
+      font-size: 0.98rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.22);
+    }
+
+    .floating-home:hover {
+      filter: brightness(1.05);
     }
 
     .reading-title {
@@ -293,16 +291,16 @@
     .chapter-title {
       text-align: center;
       color: var(--light-accent);
-      font-size: 1.6rem;
+      font-size: 1.9rem;
       margin-bottom: 16px;
       font-weight: bold;
     }
 
     .verse {
       font-size: var(--reading-font-size);
-      line-height: 1.85;
-      margin-bottom: 10px;
-      padding: 10px 12px;
+      line-height: 1.7;
+      margin-bottom: 12px;
+      padding: 12px 14px;
       border-radius: 12px;
     }
 
@@ -371,19 +369,29 @@
 
       .reading-title {
         font-size: 1.7rem;
+        padding-right: 70px;
       }
 
       .chapter-title {
-        font-size: 1.35rem;
+        font-size: 1.5rem;
       }
 
       :root {
-        --reading-font-size: 22px;
+        --reading-font-size: 34px;
+      }
+
+      .floating-home {
+        top: 10px;
+        right: 10px;
+        padding: 10px 14px;
+        font-size: 0.92rem;
       }
     }
   </style>
 </head>
 <body>
+  <button class="floating-home" onclick="irAInicio()">Inicio</button>
+
   <div id="darkApp" class="top-shell">
     <div class="header-spacer"></div>
     <div class="top-pill"></div>
@@ -401,11 +409,7 @@
         </div>
       </div>
 
-      <button class="nav-btn small" onclick="irAInicio()">Inicio</button>
-    </div>
-
-    <div class="controls-dark">
-      <button class="pill-btn-dark" onclick="irABuscador()">Ir al buscador</button>
+      <div></div>
     </div>
 
     <div class="screen active" id="screenBooks">
@@ -429,12 +433,10 @@
 
         <div class="reading-help">
           Estás viendo el <strong>capítulo completo</strong> con el versículo elegido resaltado.
-          Podés volver al inicio, ir al buscador principal o moverte al capítulo anterior o siguiente.
+          Podés volver al inicio o moverte al capítulo anterior o siguiente.
         </div>
 
         <div class="reading-toolbar">
-          <button class="tool-btn primary" onclick="irAInicio()">Inicio</button>
-          <button class="tool-btn" onclick="irABuscador()">Buscar</button>
           <button class="tool-btn" onclick="cambiarTamano(2)">A+</button>
           <button class="tool-btn" onclick="cambiarTamano(-2)">A-</button>
         </div>
@@ -448,7 +450,7 @@
 
   <script>
     let biblia = {};
-    let fontSize = 24;
+    let fontSize = 40;
 
     let currentBook = null;
     let currentChapter = null;
@@ -529,9 +531,7 @@
     async function cargarBiblia() {
       try {
         const resp = await fetch("biblia.json");
-        if (!resp.ok) {
-          throw new Error("No se pudo cargar biblia.json");
-        }
+        if (!resp.ok) throw new Error("No se pudo cargar biblia.json");
         biblia = await resp.json();
         renderBooks();
         actualizarHeader();
@@ -752,14 +752,10 @@
       showScreen("screenBooks");
     }
 
-    function irABuscador() {
-      window.location.href = "index.html";
-    }
-
     function cambiarTamano(delta) {
       fontSize += delta;
-      if (fontSize < 16) fontSize = 16;
-      if (fontSize > 46) fontSize = 46;
+      if (fontSize < 20) fontSize = 20;
+      if (fontSize > 64) fontSize = 64;
       document.documentElement.style.setProperty("--reading-font-size", fontSize + "px");
     }
 
