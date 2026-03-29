@@ -668,7 +668,10 @@
           div.classList.add("highlight");
           div.id = "versiculo-destacado";
         }
-        div.innerHTML = `<span class="verse-number">${i + 1}</span>${text}`;
+      const limpio = text
+        .replace(/\/n/g, "<br>")
+        .replace(/\n/g, "<br>");
+        div.innerHTML = `<span class="verse-number">${i + 1}</span>${limpio}`;
         box.appendChild(div);
       });
 
